@@ -17,9 +17,9 @@ module.exports = {
         appId: 'com.lead.app',
         productName,
         copyright: 'Copyright©2017leadbank.com',
-        // publish: [
-        //   'github'
-        // ],
+        publish: [
+          'github'
+        ],
         extraMetadata: {
           mian: './build/app.js'
         },
