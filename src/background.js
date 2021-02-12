@@ -1,6 +1,6 @@
 'use strict'
-
-import { app, BrowserWindow, protocol } from 'electron'
+import { app, BrowserWindow, protocol, session } from 'electron'
+import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import appUpdater from './app/updater'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -12,6 +12,9 @@ async function createWindow () {
   const win = new BrowserWindow({
     width: 1200,
     height: 900,
+    minHeight: 900,
+    minWidth: 1200,
+    autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
@@ -41,9 +44,9 @@ app.on('ready', async () => {
   appUpdater()
   if (isDevelopment && !process.env.IS_TEST) {
     try {
-      // await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
+      await session.defaultSession.loadExtension(path.join(__dirname, '../devtools'))
+    } catch (err) {
+      console.log(err)
     }
   }
   createWindow()

@@ -1,12 +1,12 @@
 import { dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 const appUpdater = () => {
-  if (process.env.NODE_ENV !== 'production') {
-    autoUpdater.updateConfigPath = './dev-app-updater.yml'
-    autoUpdater.checkForUpdates()
-  } else {
-    autoUpdater.checkForUpdatesAndNotify()
-  }
+  // if (process.env.NODE_ENV !== 'production') {
+  // autoUpdater.updateConfigPath = path.join(__dirname, '../src/app/updater/dev-app-updater.yml')
+  // autoUpdater.checkForUpdates()
+  // } else {
+  autoUpdater.checkForUpdatesAndNotify()
+  // }
   autoUpdater.autoDownload = false
   autoUpdater.on('error', (error) => {
     dialog.showErrorBox('Error: ', error == null ? 'unknow' : error.standard)

@@ -1,4 +1,4 @@
-const { productName } = require('./config/project')
+const productName = '机构惠'
 module.exports = {
   publicPath: './',
   productionSourceMap: false,
