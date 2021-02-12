@@ -1,12 +1,16 @@
 import { dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
+const devUrl = 'http://localhost:9999/'
 const appUpdater = () => {
   // if (process.env.NODE_ENV !== 'production') {
   // autoUpdater.updateConfigPath = path.join(__dirname, '../src/app/updater/dev-app-updater.yml')
   // autoUpdater.checkForUpdates()
   // } else {
-  autoUpdater.checkForUpdatesAndNotify()
+  // autoUpdater.checkForUpdatesAndNotify()
   // }
+  console.log(1231231231)
+  autoUpdater.setFeedURL(devUrl)
+  autoUpdater.checkForUpdates()
   autoUpdater.autoDownload = false
   autoUpdater.on('error', (error) => {
     dialog.showErrorBox('Error: ', error == null ? 'unknow' : error.standard)
@@ -17,7 +21,7 @@ const appUpdater = () => {
       type: 'info',
       title: '应用有新的版本',
       message: '发现新的版本,是否现在更新？',
-      button: ['否', '是']
+      buttons: ['否', '是']
     }, (buttonIndex) => {
       if (buttonIndex === 1) {
         autoUpdater.downloadUpdate()

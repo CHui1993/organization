@@ -18,7 +18,11 @@ module.exports = {
         productName,
         copyright: 'Copyright©2017leadbank.com',
         publish: [
-          'github'
+          {
+            provider: 'generic',
+            url: 'http://localhost:9999/'
+          }
+
         ],
         extraMetadata: {
           mian: './build/app.js'
