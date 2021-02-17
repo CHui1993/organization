@@ -1,42 +1,45 @@
-import { dialog } from 'electron'
+import { ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 const devUrl = 'http://localhost:9999/'
-const appUpdater = () => {
-  // if (process.env.NODE_ENV !== 'production') {
-  // autoUpdater.updateConfigPath = path.join(__dirname, '../src/app/updater/dev-app-updater.yml')
-  // autoUpdater.checkForUpdates()
-  // } else {
-  // autoUpdater.checkForUpdatesAndNotify()
-  // }
-  console.log(1231231231)
+
+export const appUpdater = (mainRender) => {
   autoUpdater.setFeedURL(devUrl)
-  autoUpdater.checkForUpdates()
   autoUpdater.autoDownload = false
   autoUpdater.on('error', (error) => {
-    dialog.showErrorBox('Error: ', error == null ? 'unknow' : error.standard)
+    mainRender.webContents.send('error', error)
   })
-  autoUpdater.on('update-available', () => {
-    console.log(123123)
-    dialog.showMessageBox({
-      type: 'info',
-      title: '应用有新的版本',
-      message: '发现新的版本,是否现在更新？',
-      buttons: ['否', '是']
-    }, (buttonIndex) => {
-      if (buttonIndex === 1) {
-        autoUpdater.downloadUpdate()
-      }
+  autoUpdater.on('update-available', (config) => {
+    mainRender.webContents.send('update-available', config)
+  })
+
+  autoUpdater.on('update-not-available', (config) => {
+    mainRender.webContents.send('update-not-available', config)
+  })
+
+  autoUpdater.on('download-progress', function (progressObj) {
+    mainRender.webContents.send('downloadProgress', progressObj)
+  })
+  ipcMain.on('startUpdate', () => {
+    autoUpdater.downloadUpdate().then(res => {
+      mainRender.webContents.send('error', '开始下载')
+    }).catch(error => {
+      console.log('error', error)
     })
   })
 
-  autoUpdater.on('update-not-available', () => {
-    console.log(1231231321231231231231231)
-
-    dialog.showMessageBox({
-      title: '没有新的版本',
-      message: '当前已是最新版本'
+  autoUpdater.on('update-downloaded', () => {
+    mainRender.webContents.send('error', '下载完成')
+    ipcMain.on('quitAndInstall', () => {
+      autoUpdater.quitAndInstall()
     })
+    mainRender.webContents.send('updateDownloaded')
   })
 }
 
-export default appUpdater
+export const checkUpdate = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    autoUpdater.checkForUpdates()
+  } else {
+    autoUpdater.checkForUpdatesAndNotify()
+  }
+}

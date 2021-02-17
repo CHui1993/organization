@@ -1,32 +1,39 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
     <router-view/>
-  </div>
 </template>
-
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+import { ipcRenderer } from 'electron'
+import { mapMutations } from 'vuex'
+export default {
+  name: 'App',
+  created () {
+    this.init()
+  },
+  methods: {
+    ...mapMutations('app', ['UPDATE_ISNEEDUPDATE', 'UPDATE_ISLATEST', 'UPDATE_ISERROR', 'UPDATE_VERSION']),
+    init () {
+      ipcRenderer.on('update-available', this.updateAvailable)
+      ipcRenderer.on('update-not-available', this.updateNotAvailable)
+      ipcRenderer.on('error', this.error)
+    },
+    updateAvailable (event, { version }) {
+      console.log('需要更新')
+      this.UPDATE_ISNEEDUPDATE(true)
+      this.UPDATE_VERSION(version)
+      this.$router.push('/update')
+    },
+    updateNotAvailable () {
+      console.log('不需要更新')
+      this.UPDATE_ISLATEST(true)
+      this.$router.push('/update')
+    },
+    error (event, error) {
+      console.log('error===', error)
+      this.UPDATE_ISERROR(true)
     }
+  },
+  destroyed () {
+    ipcRenderer.removeAllListeners()
   }
 }
-</style>
+</script>

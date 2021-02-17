@@ -1,32 +1,36 @@
 'use strict'
+import { appUpdater, checkUpdate } from '@/app/updater'
 import { app, BrowserWindow, protocol, session } from 'electron'
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import appUpdater from './app/updater'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
-
+let win = null
 async function createWindow () {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1200,
     height: 900,
-    minHeight: 900,
-    minWidth: 1200,
     autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: false,
+      enableRemoteModule: true,
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     }
   })
 
+  win.webContents.on('did-finish-load', () => {
+    appUpdater(win)
+    checkUpdate()
+  })
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
-    createProtocol('app')
-    win.loadURL('app://./index.html')
+    createProtocol('lead')
+    win.loadURL('lead://./index.html')
   }
 }
 
@@ -41,7 +45,6 @@ app.on('activate', () => {
 })
 
 app.on('ready', async () => {
-  appUpdater()
   if (isDevelopment && !process.env.IS_TEST) {
     try {
       await session.defaultSession.loadExtension(path.join(__dirname, '../devtools'))

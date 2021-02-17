@@ -13,6 +13,7 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
+      customFileProtocol: 'lead://./',
       builderOptions: {
         appId: 'com.lead.app',
         productName,
